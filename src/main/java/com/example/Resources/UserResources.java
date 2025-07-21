@@ -18,21 +18,15 @@ public class UserResources {
     @Inject
     UserServices UserServices;
 
-//    @GET
-//    public List<User> getAll() {
-//        return UserServices.getAllUsers();
-//    }
-
     @GET
-    public String test() {
-        System.out.println("jiijiii sda ");
-        return "pizda";
+    public List<User> getAll() {
+        return UserServices.getAll();
     }
 
     @GET
     @Path("/{id}")
     public Response getById(@PathParam("id") UUID id) {
-        Optional<User> user = UserServices.getUserById(id);
+        Optional<User> user = UserServices.getById(id);
         if(user.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -41,14 +35,25 @@ public class UserResources {
 
     @POST
     public Response create(User user) {
-        User created = UserServices.createUser(user);
-        return Response.status(Response.Status.CREATED).entity(created).build();
+        Optional<User> created = UserServices.create(user);
+
+        if (created.isEmpty()) {
+            return Response
+                    .status(Response.Status.CONFLICT)
+                    .entity("User already exists or input is invalid.")
+                    .build();
+        }
+
+        return Response
+                .status(Response.Status.CREATED)
+                .entity(created.get())
+                .build();
     }
 
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") UUID id, User updatedUser) {
-        Optional<User> updated = UserServices.updateUser(id , updatedUser);
+        Optional<User> updated = UserServices.update(id , updatedUser);
         if (updated.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -58,8 +63,8 @@ public class UserResources {
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") UUID id) {
-        long deleted = UserServices.deleteUser(id);
-        if (deleted == 0) {
+        long deletedUser = UserServices.delete(id);
+        if (deletedUser > 0) {
             return Response.noContent().build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();

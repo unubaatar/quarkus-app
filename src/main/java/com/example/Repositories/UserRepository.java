@@ -17,4 +17,8 @@ public class UserRepository implements PanacheRepository<User> {
     public Optional<User> findById(UUID id) {
         return find("id" , id ).firstResultOptional();
     }
+
+    public Optional<User> findByPhone(String phone) {
+        return find("phone" , phone).firstResultOptional();
+    }
 }

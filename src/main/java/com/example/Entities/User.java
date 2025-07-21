@@ -16,7 +16,9 @@ import java.util.UUID;
 public class User extends PanacheEntityBase {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
+    @Column(name = "id", updatable = false, nullable = false)
+
     private UUID id;
 
     @Column(nullable = false, unique = true)
@@ -28,6 +30,11 @@ public class User extends PanacheEntityBase {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String phone;
+
+    @OneToOne
+    @JoinColumn(name = "coupleId")
+    private Couple couple;
+
 }

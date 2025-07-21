@@ -16,27 +16,48 @@ public class UserServices {
     @Inject
     UserRepository UserRepository;
 
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return UserRepository.listAll();
     }
 
-    public Optional<User> getUserByEmail(String Email) {
+    public Optional<User> getByEmail(String Email) {
         return UserRepository.findByEmail(Email);
     }
 
-    public Optional<User> getUserById(UUID id) {
+    public Optional<User> getById(UUID id) {
         return UserRepository.findById(id);
     }
 
     @Transactional
-    public User createUser(User user) {
-        System.out.println(user);
+    public Optional<User> create(User user) {
+        String phone = user.getPhone();
+        String email = user.getEmail();
+
+        if (email == null || email.isBlank() || phone == null || phone.isBlank()) {
+            return Optional.empty();
+        }
+
+        Optional<User> foundByEmail = UserRepository.find("email", email).firstResultOptional();
+        Optional<User> foundByPhone = UserRepository.find("phone", phone).firstResultOptional();
+
+        if (foundByEmail.isPresent() || foundByPhone.isPresent()) {
+            return Optional.empty();
+        }
+
         UserRepository.persist(user);
-        return user;
+        UserRepository.flush();
+
+        System.out.println(user);
+
+        if (user.getId() == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(user);
     }
 
     @Transactional
-    public Optional<User> updateUser(UUID id, User updatedUser) {
+    public Optional<User> update(UUID id, User updatedUser) {
         Optional<User> optionalUser = UserRepository.findById(id);
 
         if (optionalUser.isEmpty()) {
@@ -52,7 +73,7 @@ public class UserServices {
     }
 
     @Transactional
-    public long deleteUser(UUID id) {
+    public long delete(UUID id) {
         return UserRepository.delete("id" , id);
     }
 
