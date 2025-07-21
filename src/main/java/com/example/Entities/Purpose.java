@@ -3,22 +3,33 @@ package com.example.Entities;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
+import com.example.Entities.User;
+
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="couple")
-public class Couple extends PanacheEntityBase {
+@Table(name="purposes")
+
+public class Purpose  extends PanacheEntityBase{
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
+    @Column(name ="id" , updatable = false , nullable = false)
     private UUID id;
 
-    @Column(nullable = false , unique = true)
-    private String coupleName;
+    @Column(name = "title" , nullable = false)
+    private String title;
 
-    @Column(nullable = false)
+    @Column(name = "description" , nullable = false)
+    private String description;
+
+    @Column(name="state" , nullable = false)
     private String state = "pending";
+
+    @OneToOne
+    @JoinColumn(name = "createdUser" , nullable = false)
+    private User createdUser;
 
     @Column(name="createdAt" , nullable = false , updatable = false)
     private LocalDateTime createdAt;
@@ -26,18 +37,15 @@ public class Couple extends PanacheEntityBase {
     @Column(name="updatedAt" , nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "couple" , cascade = CascadeType.ALL , orphanRemoval = true)
-    private List<User> users;
-
-    @PrePersist
-    protected void onCreate() {
+    @PreUpdate
+    protected void OnUpdate() {
         this.updatedAt = LocalDateTime.now();
-        this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
-    protected  void onUpdate() {
+    @PrePersist
+    protected void OnCreate() {
         this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     public UUID getId() {
@@ -48,12 +56,20 @@ public class Couple extends PanacheEntityBase {
         this.id = id;
     }
 
-    public String getCoupleName() {
-        return coupleName;
+    public String getTitle() {
+        return title;
     }
 
-    public void setCoupleName(String coupleName) {
-        this.coupleName = coupleName;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getState() {
@@ -62,6 +78,14 @@ public class Couple extends PanacheEntityBase {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public User getCreatedUser() {
+        return createdUser;
+    }
+
+    public void setCreatedUser(User createdUser) {
+        this.createdUser = createdUser;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -79,14 +103,4 @@ public class Couple extends PanacheEntityBase {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
-
 }

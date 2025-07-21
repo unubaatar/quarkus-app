@@ -47,8 +47,6 @@ public class UserServices {
         UserRepository.persist(user);
         UserRepository.flush();
 
-        System.out.println(user);
-
         if (user.getId() == null) {
             return Optional.empty();
         }
